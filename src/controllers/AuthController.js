@@ -1,14 +1,14 @@
 const dbClient = require('../utils/db')
-const User = dbClient.models.user;
+const User = dbClient.models.users;
 
 
 class AuthController {
     static async postLogin(res, req) {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         try {
             // Check if the user exists
-            let user = await User.findOne({ username });
+            let user = await User.findOne({ email });
             if (!user) {
                 return res.status(400).json({ msg: 'Invalid credentials' });
             }
@@ -41,9 +41,33 @@ class AuthController {
         }
     }
     static async postRegister(res, req) {
+        const { email } = req.body;
+        // Check if the user exists
+        try {
+            let user = await User.findOne({ email });
+            if (user) {
+                return res.status(400).json({ msg: 'User already exists' });
+            }
+            // Create a new user instance
+            user = new User({
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    password: user.password,
+                    gender: user.gender,
+                    date_of_birth: user.date_of_birth,
+                    profile_pic: user.profile_pic
+                }
+            });
+            // Save the user
+            await user.save();
 
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Server error');
+        }
     }
 }
-
 
 module.exports = AuthController;
