@@ -3,11 +3,7 @@ const express = require('express');
 const cors = require('cors');
 dbClient = require('./utils/db')
 const createChatServer = require('./utils/chat');
-
-
-
-
-
+const authRouter = require('./routes/AuthRoutes');
 
 async function createServer() {
     const app = express();
@@ -18,9 +14,9 @@ async function createServer() {
     //     // credentials: true,
     // }));
     app.use(express.json());
-  
-    await dbClient.isAlive()
 
+    await dbClient.isAlive()
+    app.use(authRouter);
     app.get('/', (req, res) => {
         res.send("Socket.io Chat Server is running");
     });
