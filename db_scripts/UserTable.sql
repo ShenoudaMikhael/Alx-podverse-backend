@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Oct 04, 2024 at 01:19 PM
+-- Generation Time: Oct 04, 2024 at 11:36 PM
 -- Server version: 8.0.37-0ubuntu0.23.10.2
 -- PHP Version: 8.2.10-2ubuntu2.2
 
@@ -30,13 +30,15 @@ SET time_zone = "+00:00";
 CREATE TABLE `users` (
   `id` int NOT NULL,
   `name` varchar(100) NOT NULL,
+  `username` int NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `gender` enum('male','female') NOT NULL,
   `date_of_birth` date NOT NULL,
   `profile_pic` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL,
-  `updated_at` timestamp NOT NULL
+  `is_active` tinyint(1) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -47,7 +49,8 @@ CREATE TABLE `users` (
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`);
 
 --
 -- AUTO_INCREMENT for dumped tables
