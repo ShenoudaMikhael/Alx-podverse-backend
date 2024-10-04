@@ -1,4 +1,5 @@
 const { Sequelize } = require('sequelize');
+const initModels = require('../models/init-models');
 
 
 
@@ -14,18 +15,22 @@ class DbClient {
                 logging: console.log,
             }
         );
+        // Models object 
+        this.models = initModels(this.sequelize);
+        this.sequelize.sync();
     }
 
     async isAlive() {
         try {
             await this.sequelize.authenticate();
-            console.log('Connection has been established successfully.');
+            console.debug('Connection has been established successfully.');
             return true;
         } catch (error) {
-            console.error('Unable to connect to the database:', error);
+            console.debug('Unable to connect to the database:', error);
             return false;
         }
     }
+
 }
 dbClient = new DbClient();
 module.exports = dbClient;
