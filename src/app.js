@@ -1,18 +1,24 @@
 
 const express = require('express');
-const sequelize = require('./utils/db');
+dbClient = require('./utils/db')
 
 const app = express();
-app.use(express.json());
+
+async function createServer() {
+    await dbClient.isAlive()
+    app.use(express.json());
 
 
-app.get('*', function (req, res) {
-    res.status(404).send({ "error": "Endpoint is not there" });
-});
-app.post('*', function (req, res) {
-    res.status(404).send({ "error": "Endpoint is not there" });
-});
+    app.get('*', function (req, res) {
+        res.status(404).send({ "error": "Endpoint is not there" });
+    });
+    app.post('*', function (req, res) {
+        res.status(404).send({ "error": "Endpoint is not there" });
+    });
+    return app;
+}
 
 
 
-module.exports = app;
+
+module.exports = createServer;
