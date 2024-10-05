@@ -1,6 +1,8 @@
-const dbClient = require('../utils/db')
+const bcrypt = require('bcryptjs')
+const dbClient = require('../utils/db');
+const jwt = require('jsonwebtoken');
+const getenv = require('getenv');
 const User = dbClient.models.users;
-
 
 class AuthController {
     static async postLogin(req, res) {
@@ -8,11 +10,11 @@ class AuthController {
 
         try {
             // Check if the user exists
-            let user = await User.findOne({ email });
+            let user = await User.findOne({ where: { email } });
             if (!user) {
-                return res.status(400).json({ msg: 'Invalid credentials' });
+                return res.status(400).json({ msg: 'Invalid credentials0' });
             }
-
+            console.log(user.password)
             // Check password
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
@@ -28,7 +30,7 @@ class AuthController {
 
             jwt.sign(
                 payload,
-                'your_jwt_secret', // Store this secret safely
+                getenv('JWT'), // Store this secret safely
                 { expiresIn: '1h' },
                 (err, token) => {
                     if (err) throw err;
@@ -41,31 +43,40 @@ class AuthController {
         }
     }
     static async postRegister(req, res) {
-        const { email } = req.body;
+        const { name, email, password, gender, date_of_birth } = req.body;
         // Check if the user exists
+        console.log(email);
         try {
-            let user = await User.findOne({ email });
+            let user = await User.findOne({ where: { email } });
             if (user) {
+                console.log(user)
                 return res.status(400).json({ msg: 'User already exists' });
             }
             // Create a new user instance
-            user = new User({
-                user: {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    password: user.password,
-                    gender: user.gender,
-                    date_of_birth: user.date_of_birth,
-                    profile_pic: user.profile_pic
-                }
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            user = await User.create({
+                name, email, password: hashedPassword, gender, date_of_birth
             });
-            // Save the user
-            await user.save();
-            res.status(201).json({msg: 'User Created Successfuly'});
+            res.status(201).json({ msg: 'User Created Successfuly' });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server error');
+        }
+    }
+
+    static authMiddleWare(req, res, next) {
+        const token = req.header('x-auth-token');
+        if (!token) {
+            return res.status(401).json({ msg: 'No token, authorization denied' });
+        }
+
+        try {
+            const decoded = jwt.verify(token, getenv('JWT'));
+            req.user = decoded.user;
+            next();
+        } catch (err) {
+            res.status(401).json({ msg: 'Token is not valid' });
         }
     }
 }

@@ -16,7 +16,7 @@ async function createServer() {
     app.use(express.json());
 
     await dbClient.isAlive()
-    app.use(authRouter);
+    app.use('/auth',authRouter);
     app.get('/', (req, res) => {
         res.send("Socket.io Chat Server is running");
     });
