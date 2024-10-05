@@ -3,7 +3,7 @@ const User = dbClient.models.users;
 
 
 class AuthController {
-    static async postLogin(res, req) {
+    static async postLogin(req, res) {
         const { email, password } = req.body;
 
         try {
@@ -40,7 +40,7 @@ class AuthController {
             res.status(500).send('Server error');
         }
     }
-    static async postRegister(res, req) {
+    static async postRegister(req, res) {
         const { email } = req.body;
         // Check if the user exists
         try {
@@ -62,7 +62,7 @@ class AuthController {
             });
             // Save the user
             await user.save();
-
+            res.status(201).json({msg: 'User Created Successfuly'});
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server error');

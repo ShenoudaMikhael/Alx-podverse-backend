@@ -1,16 +1,16 @@
 const { Sequelize } = require('sequelize');
 const initModels = require('../models/init-models');
-
+const getenv = require('getenv');
 
 
 class DbClient {
     constructor() {
         this.sequelize = new Sequelize(
-            'podverse',
-            'shno',
-            'B5XXV0POew4a7NQt',
+            getenv('DATABASE'),
+            getenv('DATABASE_USER'),
+            getenv('DATABASE_PASS'),         
             {
-                host: 'localhost',
+                host: getenv('DATABASE_HOST'),
                 dialect: 'mysql',
                 logging: console.log,
             }
