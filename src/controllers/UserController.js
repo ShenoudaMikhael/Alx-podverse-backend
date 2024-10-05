@@ -60,6 +60,37 @@ class UserController {
             res.status(500).send('Server error');
         }
     }
+
+    static async updateProfilePicture(req, res) {
+        try {
+            const userId = req.user.id;
+
+            // Ensure a file was uploaded
+            if (!req.file) {
+                return res.status(400).json({ msg: 'No file uploaded' });
+            }
+
+            // Check if the user already has a profile picture and delete the old file
+            if (req.user.profilePicture) {
+                const oldFilePath = path.join(__dirname, '..', user.profilePicture);
+                if (fs.existsSync(oldFilePath)) {
+                    fs.unlinkSync(oldFilePath);  // Delete the old profile picture
+                }
+            }
+
+            // Save file path in the user profile
+            const profilePictureUrl = `uploads/${req.file.filename}`;
+            await User.update(
+                { profilePicture: profilePictureUrl },
+                { where: { id: userId } }
+            );
+
+            res.json({ msg: 'Profile picture updated successfully', profilePicture: profilePictureUrl });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Server error');
+        }
+    }
 }
 
 module.exports = UserController;

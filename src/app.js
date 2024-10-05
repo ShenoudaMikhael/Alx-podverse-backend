@@ -17,6 +17,8 @@ async function createServer() {
     app.use(express.json());
 
     await dbClient.isAlive()
+    // Serve static files in the "uploads" folder
+    app.use('/uploads', express.static('uploads'));
     app.use('/auth',authRouter);
     app.use('/user',userRouter);
     app.get('/', (req, res) => {
