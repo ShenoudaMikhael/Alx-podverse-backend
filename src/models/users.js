@@ -11,6 +11,11 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       allowNull: false
     },
+    username: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      unique: "username"
+    },
     email: {
       type: DataTypes.STRING(255),
       allowNull: false
@@ -20,21 +25,27 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     gender: {
-      type: DataTypes.ENUM('male','female'),
+      type: DataTypes.BOOLEAN,
       allowNull: false
     },
-    date_of_birth: {
+    dob: {
       type: DataTypes.DATEONLY,
       allowNull: false
     },
-    profile_pic: {
+    profilePic: {
       type: DataTypes.STRING(255),
       allowNull: true
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     }
   }, {
     sequelize,
     tableName: 'users',
     timestamps: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
     indexes: [
       {
         name: "PRIMARY",
@@ -42,6 +53,14 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "id" },
+        ]
+      },
+      {
+        name: "username",
+        unique: true,
+        using: "BTREE",
+        fields: [
+          { name: "username" },
         ]
       },
     ]

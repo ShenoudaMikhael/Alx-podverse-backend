@@ -43,7 +43,7 @@ class AuthController {
         }
     }
     static async postRegister(req, res) {
-        const { name, email, password, gender, date_of_birth } = req.body;
+        const { name, username, email, password, gender, dob } = req.body;
         // Check if the user exists
         console.log(email);
         try {
@@ -56,7 +56,7 @@ class AuthController {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
             user = await User.create({
-                name, email, password: hashedPassword, gender, date_of_birth
+                name, username, email, password: hashedPassword, gender, dob, isActive: true
             });
             res.status(201).json({ msg: 'User Created Successfuly' });
         } catch (err) {
