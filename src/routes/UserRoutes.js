@@ -8,6 +8,7 @@ userRouter.get('/profile', AuthController.authMiddleWare, UserController.getUser
 userRouter.put('/updateProfile', AuthController.authMiddleWare, UserController.updateUserProfile);
 // userRouter.post('/profilePicture', AuthController.authMiddleWare, upload.single('profilePicture'), UserController.updateProfilePicture);
 userRouter.put('/profilePicture', AuthController.authMiddleWare, upload.single('profilePicture'), UserController.updateProfilePicture);
+userRouter.put('/updatePassword', AuthController.authMiddleWare, UserController.updatePassword);
 userRouter.get('/:id', UserController.getUserById);
 
 

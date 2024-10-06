@@ -1,6 +1,6 @@
 const dbClient = require('../utils/db');
 const jwt = require('jsonwebtoken');
-const getenv = require('getenv');
+const bcrypt = require('bcryptjs')
 const User = dbClient.models.users;
 
 class UserController {
@@ -30,7 +30,7 @@ class UserController {
     static async updateUserProfile(req, res) {
         try {
             const userId = req.user.id;
-            const { name, username, email, gender, dob } = req.body;
+            const { name, username, gender, dob } = req.body;
 
             const fieldsToUpdate = {};
             if (name) fieldsToUpdate.name = name;
@@ -81,11 +81,43 @@ class UserController {
             // Save file path in the user profile
             const profilePictureUrl = `uploads/${req.file.filename}`;
             await User.update(
-                { profilePicture: profilePictureUrl },
+                { profilePic: profilePictureUrl },
                 { where: { id: userId } }
             );
 
             res.json({ msg: 'Profile picture updated successfully', profilePicture: profilePictureUrl });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Server error');
+        }
+    }
+
+    static async updatePassword(req, res) {
+        const { oldPassword, newPassword } = req.body;
+        const userId = req.user.id;
+
+        try {
+            // Find the user by ID
+            const user = await User.findOne({ where: { id: userId } });
+            if (!user) {
+                return res.status(404).json({ msg: 'User not found' });
+            }
+
+            // Check if the old password is correct
+            const isMatch = await bcrypt.compare(oldPassword, user.password);
+            if (!isMatch) {
+                return res.status(400).json({ msg: 'Old password is incorrect' });
+            }
+
+            // Hash the new password
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+            // Update the password in the database
+            user.password = hashedPassword;
+            await user.save();
+
+            res.status(200).json({ msg: 'Password updated successfully' });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server error');
