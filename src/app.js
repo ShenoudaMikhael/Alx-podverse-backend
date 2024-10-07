@@ -5,6 +5,8 @@ dbClient = require('./utils/db')
 const createChatServer = require('./utils/chat');
 const authRouter = require('./routes/AuthRoutes');
 const userRouter = require('./routes/UserRoutes');
+const categoryRouter = require('./routes/CategoryRoutes');
+const podcastRouter = require('./routes/PodcastRoutes');
 
 async function createServer() {
     const app = express();
@@ -18,6 +20,8 @@ async function createServer() {
 
     await dbClient.isAlive()
     // Serve static files in the "uploads" folder
+    app.use('/podcast',podcastRouter);
+    app.use('/category',categoryRouter);
     app.use('/uploads', express.static('uploads'));
     app.use('/auth',authRouter);
     app.use('/user',userRouter);
