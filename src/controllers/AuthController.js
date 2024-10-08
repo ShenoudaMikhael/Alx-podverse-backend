@@ -24,7 +24,8 @@ class AuthController {
             // Sign a token
             const payload = {
                 user: {
-                    id: user.id
+                    id: user.id,
+                    profilePicture: user.profilePic
                 }
             };
 

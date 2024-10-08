@@ -9,7 +9,9 @@ userRouter.put('/updateProfile', AuthController.authMiddleWare, UserController.u
 // userRouter.post('/profilePicture', AuthController.authMiddleWare, upload.single('profilePicture'), UserController.updateProfilePicture);
 userRouter.put('/profilePicture', AuthController.authMiddleWare, upload.single('profilePicture'), UserController.updateProfilePicture);
 userRouter.put('/updatePassword', AuthController.authMiddleWare, UserController.updatePassword);
-userRouter.get('/:id', UserController.getUserById);
+// userRouter.get('/:id', UserController.getUserById);
 
+userRouter.get('/followers', AuthController.authMiddleWare, UserController.getFollowers);
+userRouter.get('/following', AuthController.authMiddleWare, UserController.getFollowingList);
 
 module.exports = userRouter;

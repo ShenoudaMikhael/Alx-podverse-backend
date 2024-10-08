@@ -2,24 +2,26 @@ const dbClient = require('../utils/db');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs')
 const User = dbClient.models.users;
-
+const Follower = dbClient.models.followers;
+const path = require('path')
+const fs = require('fs')
 class UserController {
 
-    static async getUserById(req, res) {
-        try {
-            const userId = req.params.id;
-            const user = await User.findOne({ where: { id: userId } });
+    // static async getUserById(req, res) {
+    //     try {
+    //         const userId = req.params.id;
+    //         const user = await User.findOne({ where: { id: userId } });
 
-            if (!user) {
-                return res.status(404).json({ msg: 'User not found' });
-            }
+    //         if (!user) {
+    //             return res.status(404).json({ msg: 'User not found' });
+    //         }
 
-            res.json(user);
-        } catch (err) {
-            console.error(err.message);
-            res.status(500).send('Server error');
-        }
-    }
+    //         res.json(user);
+    //     } catch (err) {
+    //         console.error(err.message);
+    //         res.status(500).send('Server error');
+    //     }
+    // }
 
     static async getUserProfile(req, res) {
         const userId = req.user.id;
@@ -72,7 +74,7 @@ class UserController {
 
             // Check if the user already has a profile picture and delete the old file
             if (req.user.profilePicture) {
-                const oldFilePath = path.join(__dirname, '..', user.profilePicture);
+                const oldFilePath = path.join(__dirname, '../','../',req.user.profilePicture);
                 if (fs.existsSync(oldFilePath)) {
                     fs.unlinkSync(oldFilePath);  // Delete the old profile picture
                 }
@@ -118,6 +120,40 @@ class UserController {
             await user.save();
 
             res.status(200).json({ msg: 'Password updated successfully' });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Server error');
+        }
+    }
+
+    static async getFollowers(req, res) {
+
+        try {
+            const userId = req.user.id;
+
+            const followers = await Follower.findAll({ where: { followed_creator_id: userId } });
+
+            return res.status(200).json({
+                message: 'Followers retrieved successfully!',
+                followers
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Server error');
+        }
+    }
+
+    static async getFollowingList(req, res) {
+
+        try {
+            const userId = req.user.id;
+ 
+            const following = await Follower.count({ where: { follower_id: userId } });
+
+            return res.status(200).json({
+                message: 'Following list retrieved successfully!',
+                count: following
+            });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server error');
