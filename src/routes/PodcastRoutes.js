@@ -3,6 +3,7 @@ const PodcastController = require('../controllers/PodcastController');
 const AuthController = require('../controllers/AuthController');
 
 podcastRouter.post('/create', AuthController.authMiddleWare, PodcastController.createPodcast);
+podcastRouter.get('/userPodcast', AuthController.authMiddleWare, PodcastController.getUserPodcasts);
 podcastRouter.put('/:id', AuthController.authMiddleWare, PodcastController.updatePodcast);
 
 module.exports = podcastRouter;

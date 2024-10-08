@@ -75,6 +75,25 @@ class PodcastController {
         }
     }
 
+    static async getUserPodcasts(req, res) {
+        try {
+            const userId = req.user.id;
+            const podcasts = await Podcast.findAll({ where: { user_id: userId } });
+
+            if (!podcasts) {
+                return res.status(404).json({ message: 'No podcasts found' });
+            }
+
+            return res.status(200).json({
+                message: 'Podcasts retrieved successfully!',
+                podcasts
+            });
+
+        } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+        }
+    }
 };
 
 module.exports = PodcastController;
