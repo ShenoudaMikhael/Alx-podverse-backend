@@ -131,11 +131,11 @@ class UserController {
         try {
             const userId = req.user.id;
 
-            const followers = await Follower.findAll({ where: { followed_creator_id: userId } });
+            const followers = await Follower.count({ where: { followed_creator_id: userId } });
 
             return res.status(200).json({
                 message: 'Followers retrieved successfully!',
-                followers
+                count: followers
             });
         } catch (err) {
             console.error(err.message);

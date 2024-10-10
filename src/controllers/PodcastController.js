@@ -2,6 +2,7 @@ const dbClient = require('../utils/db');
 const User = dbClient.models.users;
 const Category = dbClient.models.categories;
 const Podcast = dbClient.models.podcasts;
+const Follower = dbClient.models.followers;
 
 class PodcastController {
     static async createPodcast(req, res) {
@@ -93,6 +94,25 @@ class PodcastController {
         console.error(err.message);
         res.status(500).send('Server error');
         }
+    }
+
+    static async getFollowingPodcasts(req, res) {
+        const userId = req.user.id;
+        const following = await Follower.findAll({ where: { follower_id: userId }, attributes: ['followed_creator_id'] });
+        
+        // Extract the list of followed creator IDs
+        const followedCreatorIds = following.map(f => f.followed_creator_id);
+
+        // 2. Fetch podcasts where the creator (user_id) is in the list of followed creators
+        const followingPodcasts = await Podcast.findAll({
+            where: { user_id: followedCreatorIds } // user_id here refers to the podcast creator
+        });
+
+        // 3. Respond with the list of podcasts
+        return res.status(200).json({
+            message: 'Following podcasts retrieved successfully!',
+            podcasts: followingPodcasts
+        });
     }
 };
 
