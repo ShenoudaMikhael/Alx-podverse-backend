@@ -1,3 +1,4 @@
+const getenv = require('getenv');
 const http = require('http');
 const { Server } = require('socket.io');
 
@@ -6,7 +7,22 @@ function createChatServer(app) {
     console.log('createChatServer');
     const server = http.createServer(app);
     const io = new Server(server);
-    
+    // io.use((socket, next) => {
+    //     const token = socket.handshake.auth.token; // Assuming you're passing the token in the auth header
+    //     if (!token) {
+    //       return next(new Error('Authentication error'));
+    //     }
+      
+    //     jwt.verify(token, getenv('JWT'), (err, decoded) => {
+    //       if (err) {
+    //         return next(new Error('Authentication error'));
+    //       }
+      
+    //       // If token is valid, save the decoded data (user info) in the socket object
+    //       socket.user = decoded;
+    //       next();
+    //     });
+    //   });
     io.on('connection', (socket) => {
         // const ids = [];
         console.log('A user connected', socket.id);
