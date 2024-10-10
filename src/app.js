@@ -16,7 +16,7 @@ async function createServer() {
     //     methods: ['GET', 'POST'],
     //     // credentials: true,
     // }));
-    app.use(express.json());
+    app.use(express.json({ limit: '50mb' }));
 
     await dbClient.isAlive()
     // Serve static files in the "uploads" folder
@@ -41,3 +41,4 @@ async function createServer() {
 
 
 module.exports = createServer;
+
