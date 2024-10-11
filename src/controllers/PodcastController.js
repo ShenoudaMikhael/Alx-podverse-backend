@@ -7,39 +7,39 @@ const Follower = dbClient.models.followers;
 class PodcastController {
     static async createPodcast(req, res) {
 
-    try {
-        const { title, description, start_date, cat_id, user_id } = req.body;
+        try {
+            const { title, description, start_date, cat_id, user_id, is_live } = req.body;
 
-        // Check if category exists
-        const category = await Category.findByPk(cat_id);
-        if (!category) {
-            return res.status(404).json({ message: 'Category not found' });
+            // Check if category exists
+            const category = await Category.findByPk(cat_id);
+            if (!category) {
+                return res.status(404).json({ message: 'Category not found' });
+            }
+
+            // Check if user exists (if applicable)
+            const user = await User.findByPk(user_id);
+            if (!user) {
+                return res.status(404).json({ message: 'Please sign in first' });
+            }
+
+            // Create the podcast
+            const newPodcast = await Podcast.create({
+                title,
+                description,
+                start_date,
+                is_live: (is_live === true ? is_live : false),
+                cat_id,
+                user_id,
+            });
+
+            return res.status(201).json({
+                message: 'Podcast created successfully!',
+                podcast: newPodcast,
+            });
+        } catch (error) {
+            console.error('Error creating podcast:', error);
+            return res.status(500).json({ message: 'Server error' });
         }
-
-        // Check if user exists (if applicable)
-        const user = await User.findByPk(user_id);
-        if (!user) {
-            return res.status(404).json({ message: 'Please sign in first' });
-        }
-
-        // Create the podcast
-        const newPodcast = await Podcast.create({
-            title,
-            description,
-            start_date,
-            is_live: false,
-            cat_id,
-            user_id,
-        });
-
-        return res.status(201).json({
-            message: 'Podcast created successfully!',
-            podcast: newPodcast,
-        });
-    } catch (error) {
-        console.error('Error creating podcast:', error);
-        return res.status(500).json({ message: 'Server error' });
-    }
     }
 
     static async updatePodcast(req, res) {
@@ -66,7 +66,7 @@ class PodcastController {
 
             const updatedPodcast = await Podcast.update(
                 fieldsToUpdate,
-                { where: { id: podcastId }}
+                { where: { id: podcastId } }
             );
 
             res.json({ msg: 'Podcast updated successfully', podcast: updatedPodcast });
@@ -91,15 +91,15 @@ class PodcastController {
             });
 
         } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+            console.error(err.message);
+            res.status(500).send('Server error');
         }
     }
 
     static async getFollowingPodcasts(req, res) {
         const userId = req.user.id;
         const following = await Follower.findAll({ where: { follower_id: userId }, attributes: ['followed_creator_id'] });
-        
+
         // Extract the list of followed creator IDs
         const followedCreatorIds = following.map(f => f.followed_creator_id);
 

@@ -11,11 +11,11 @@ const podcastRouter = require('./routes/PodcastRoutes');
 async function createServer() {
     const app = express();
     // will need it later for full http request. 
-    // app.use(cors({
-    //     origin: '*',
-    //     methods: ['GET', 'POST'],
-    //     // credentials: true,
-    // }));
+    app.use(cors({
+        origin: '*',
+        methods: ['GET', 'POST'],
+        // credentials: true,
+    }));
     app.use(express.json({ limit: '50mb' }));
 
     await dbClient.isAlive()
