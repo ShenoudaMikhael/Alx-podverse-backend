@@ -1,11 +1,19 @@
+
 const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
+const { v4: uuidv4 } = require('uuid');
+
+module.exports = function (sequelize, DataTypes) {
   return sequelize.define('podcasts', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
+    },
+    uuid: {
+      type: DataTypes.UUID, // UUID type for the column
+      defaultValue: DataTypes.UUIDV4, // Sequelize's built-in UUID generator (if you want to use it)
+      allowNull: false,
     },
     title: {
       type: DataTypes.STRING(100),
@@ -40,6 +48,13 @@ module.exports = function(sequelize, DataTypes) {
       }
     }
   }, {
+    hooks: {
+      beforeCreate: (instance) => {
+        if (!instance.uuid) {
+          instance.uuid = uuidv4(); // Use the 'uuid' package to generate UUID
+        }
+      }
+    },
     sequelize,
     tableName: 'podcasts',
     timestamps: true,
