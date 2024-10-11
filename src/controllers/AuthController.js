@@ -80,6 +80,10 @@ class AuthController {
             res.status(401).json({ msg: 'Token is not valid' });
         }
     }
+    static async isLoggedIn(req, res){
+        return res.status(200).json({});
+    }
+
 }
 
 module.exports = AuthController;

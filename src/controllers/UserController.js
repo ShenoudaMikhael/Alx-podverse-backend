@@ -159,6 +159,7 @@ class UserController {
             res.status(500).send('Server error');
         }
     }
+
 }
 
 module.exports = UserController;
