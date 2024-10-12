@@ -12,7 +12,8 @@ class DbClient {
             {
                 host: getenv('DATABASE_HOST'),
                 dialect: 'mysql',
-                logging: console.log,
+                logging: false,
+                // logging: console.log,
             }
         );
         // Models object 
