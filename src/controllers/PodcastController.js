@@ -52,7 +52,7 @@ class PodcastController {
                 return res.status(404).json({ msg: 'Podcast not found' });
             }
 
-            const { title, description, start_date, is_live, cat_id ,socket_current_id} = req.body;
+            const { title, description, start_date, is_live, cat_id, socket_current_id } = req.body;
 
             const fieldsToUpdate = {};
             if (title) fieldsToUpdate.title = title;
@@ -116,6 +116,42 @@ class PodcastController {
             podcasts: followingPodcasts
         });
     }
+
+    static async getPodcast(req, res) {
+        try {
+            const { uuid } = req.params;
+            const { socket_current_id } = req.body;
+            console.log(uuid);
+
+            const podcast = await Podcast.findOne({
+                where: { uuid }, include: [
+                    { model: User, as: 'user', attributes: ['username', 'name'] },
+                    { model: Category, as: 'cat' },
+                ]
+            });
+            if (podcast.user_id === req.user.id) { podcast.current_socket_id = socket_current_id; podcast.save() }
+            const me = await User.findOne({
+                where: { id: req.user.id }, attributes: ['name', 'username'],
+            });
+
+            if (!podcast) {
+                return res.status(404).send({ msg: "Not Found" });
+            }
+            console.log({
+                podcast, "user_id": req.user.id,
+                me
+            });
+            return res.status(200).json({
+                podcast, "user_id": req.user.id,
+                me
+            });
+
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Server error');
+        }
+    }
+
 };
 
 module.exports = PodcastController;
