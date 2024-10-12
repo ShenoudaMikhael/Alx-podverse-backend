@@ -8,19 +8,19 @@ class PodcastController {
     static async createPodcast(req, res) {
 
         try {
-            const { title, description, start_date, cat_id, user_id, is_live } = req.body;
+            const { title, description, start_date, cat_id, is_live } = req.body;
 
             // Check if category exists
             const category = await Category.findByPk(cat_id);
             if (!category) {
                 return res.status(404).json({ message: 'Category not found' });
             }
-
+            // what is this  ??????
             // Check if user exists (if applicable)
-            const user = await User.findByPk(user_id);
-            if (!user) {
-                return res.status(404).json({ message: 'Please sign in first' });
-            }
+            // const user = await User.findByPk(user_id);
+            // if (!user) {
+            //     return res.status(404).json({ message: 'Please sign in first' });
+            // }
 
             // Create the podcast
             const newPodcast = await Podcast.create({
@@ -29,7 +29,8 @@ class PodcastController {
                 start_date,
                 is_live: (is_live === true ? is_live : false),
                 cat_id,
-                user_id,
+                //user id from request
+                user_id: req.user.id,
             });
 
             return res.status(201).json({
@@ -51,7 +52,7 @@ class PodcastController {
                 return res.status(404).json({ msg: 'Podcast not found' });
             }
 
-            const { title, description, start_date, is_live, cat_id } = req.body;
+            const { title, description, start_date, is_live, cat_id ,socket_current_id} = req.body;
 
             const fieldsToUpdate = {};
             if (title) fieldsToUpdate.title = title;
@@ -59,6 +60,7 @@ class PodcastController {
             if (start_date) fieldsToUpdate.start_date = start_date;
             if (is_live) fieldsToUpdate.is_live = is_live;
             if (cat_id) fieldsToUpdate.cat_id = cat_id;
+            if (socket_current_id) fieldsToUpdate.socket_current_id = socket_current_id;
 
             if (Object.keys(fieldsToUpdate).length === 0) {
                 return res.status(400).json({ msg: 'No fields to update' });

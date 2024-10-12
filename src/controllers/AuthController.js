@@ -12,7 +12,7 @@ class AuthController {
             // Check if the user exists
             let user = await User.findOne({ where: { email } });
             if (!user) {
-                return res.status(400).json({ msg: 'Invalid credentials0' });
+                return res.status(400).json({ msg: 'Invalid credentials' });
             }
             console.log(user.password)
             // Check password
