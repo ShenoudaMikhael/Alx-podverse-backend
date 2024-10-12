@@ -21,8 +21,8 @@ function initModels(sequelize) {
 
   return {
     categories,
-    podcasts,
     followers,
+    podcasts,
     users,
   };
 }
