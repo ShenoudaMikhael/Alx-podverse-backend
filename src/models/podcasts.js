@@ -1,5 +1,8 @@
+
 const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
+const { v4: uuidv4 } = require('uuid');
+
+module.exports = function (sequelize, DataTypes) {
   return sequelize.define('podcasts', {
     id: {
       autoIncrement: true,
@@ -8,8 +11,9 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true
     },
     uuid: {
-      type: DataTypes.CHAR(36),
-      allowNull: false
+      type: DataTypes.UUID, // UUID type for the column
+      defaultValue: DataTypes.UUIDV4, // Sequelize's built-in UUID generator (if you want to use it)
+      allowNull: false,
     },
     title: {
       type: DataTypes.STRING(100),
@@ -35,10 +39,6 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
-    current_socket_id: {
-      type: DataTypes.STRING(50),
-      allowNull: true
-    },
     cat_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -48,9 +48,18 @@ module.exports = function(sequelize, DataTypes) {
       }
     }
   }, {
+    hooks: {
+      beforeCreate: (instance) => {
+        if (!instance.uuid) {
+          instance.uuid = uuidv4(); // Use the 'uuid' package to generate UUID
+        }
+      }
+    },
     sequelize,
     tableName: 'podcasts',
     timestamps: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
     indexes: [
       {
         name: "PRIMARY",
@@ -61,17 +70,17 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "cat_id",
-        using: "BTREE",
-        fields: [
-          { name: "cat_id" },
-        ]
-      },
-      {
         name: "creator_id",
         using: "BTREE",
         fields: [
           { name: "user_id" },
+        ]
+      },
+      {
+        name: "cat_id",
+        using: "BTREE",
+        fields: [
+          { name: "cat_id" },
         ]
       },
     ]
