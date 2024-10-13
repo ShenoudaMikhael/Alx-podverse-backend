@@ -15,15 +15,27 @@ class PodcastController {
             // console.log("here",req.body.data);
             const { title, description, start_date, cat_id, is_live } = JSON.parse(req.body.data);
             const uploadedFile = req.body;
-            // Check if category exists
 
+            // Handle uploading podcast photo while creating
             let podcastPhoto = null;
-
-            // Check if a file was uploaded
             if (req.file) {
                 podcastPhoto = req.file.path; // Save the uploaded file path
             }
 
+            // Handle podcastStartDate when podcast is live
+            let podcastStartDate = null;
+            if (is_live === true || is_live === "true" || is_live === 1) {
+                podcastStartDate = new Date();
+            } else {
+                if (!start_date) {
+                    return res.status(400).json({
+                        message: 'Start date is required for non-live podcasts',
+                    });
+                }
+                podcastStartDate = new Date(start_date);
+            }
+
+            // Check if category exists
             const category = await Category.findOne({ where: { id: cat_id } });
             if (!category) {
                 return res.status(404).json({ message: 'Category not found' });
@@ -34,8 +46,10 @@ class PodcastController {
             const newPodcast = await Podcast.create({
                 title,
                 description,
-                start_date,
-                is_live: (is_live === true ? is_live : false),
+                start_date: podcastStartDate,
+                is_live: is_live === true || is_live === "true" || is_live === 1,
+                // it makes is_live false even if it's true (datatypes)!
+                // is_live: (is_live === true ? is_live : false),
                 podcastPic: podcastPhoto,
                 cat_id,
                 //user id from request
