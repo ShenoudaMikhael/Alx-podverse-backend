@@ -31,6 +31,10 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
+    podcastPic: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
