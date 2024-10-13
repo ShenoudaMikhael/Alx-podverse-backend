@@ -3,26 +3,24 @@ const User = dbClient.models.users;
 const Category = dbClient.models.categories;
 const Podcast = dbClient.models.podcasts;
 const Follower = dbClient.models.followers;
+const multer = require('multer');
+const upload = multer({ dest: 'uploads2/' });
 
 class PodcastController {
     static async createPodcast(req, res) {
 
         try {
-            const { title, description, start_date, cat_id, is_live } = req.body;
-
+            // console.log("here",req.body.data);
+            const { title, description, start_date, cat_id, is_live } = JSON.parse(req.body.data);
+            const uploadedFile = req.body;
             // Check if category exists
-            const category = await Category.findByPk(cat_id);
+            const category = await Category.findOne({ where: { id: cat_id } });
             if (!category) {
                 return res.status(404).json({ message: 'Category not found' });
             }
-            // what is this  ??????
-            // Check if user exists (if applicable)
-            // const user = await User.findByPk(user_id);
-            // if (!user) {
-            //     return res.status(404).json({ message: 'Please sign in first' });
-            // }
 
             // Create the podcast
+            console.log(req.user.id);
             const newPodcast = await Podcast.create({
                 title,
                 description,
