@@ -1,8 +1,10 @@
 const podcastRouter = require('express').Router();
 const PodcastController = require('../controllers/PodcastController');
 const AuthController = require('../controllers/AuthController');
+const uploadPodcast = require('../utils/uploadPodcast');
 
-podcastRouter.post('/create', AuthController.authMiddleWare, PodcastController.createPodcast);
+
+podcastRouter.post('/create',AuthController.authMiddleWare, uploadPodcast.single('file'),  PodcastController.createPodcast);
 podcastRouter.get('/userPodcast', AuthController.authMiddleWare, PodcastController.getUserPodcasts);
 podcastRouter.get('/followingPodcast', AuthController.authMiddleWare, PodcastController.getFollowingPodcasts);
 podcastRouter.put('/:id', AuthController.authMiddleWare, PodcastController.updatePodcast);
