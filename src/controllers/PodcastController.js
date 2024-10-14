@@ -166,7 +166,13 @@ class PodcastController {
                     { model: Category, as: 'cat' },
                 ]
             });
+            if (!podcast) {
+                return res.status(404).send({ 'msg': 'podcast not found' })
+            }
+            console.log("here")
             if (podcast.user_id === req.user.id) { podcast.current_socket_id = socket_current_id; podcast.save() }
+            console.log("here")
+
             const me = await User.findOne({
                 where: { id: req.user.id }, attributes: ['name', 'username'],
             });
