@@ -166,7 +166,7 @@ class UserController {
                 include: [
                     {
                         model: User,
-                        as: 'follower',
+                        as: 'followed_creator',
                         attributes: ['id', 'name', 'profilePic'],
                     }
                 ]

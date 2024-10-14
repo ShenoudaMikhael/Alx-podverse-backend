@@ -13,7 +13,7 @@ async function createServer() {
     // will need it later for full http request. 
     app.use(cors({
         origin: '*',
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
         // credentials: true,
     }));
     app.use(express.json({ limit: '50mb' }));
