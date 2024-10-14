@@ -262,6 +262,20 @@ class PodcastController {
         }
     }
 
+    static async getAllPodcasts(req, res) {
+        try {
+            const podcasts = await Podcast.findAll();
+    
+            return res.status(200).json({
+                message: 'Podcasts retrieved successfully!',
+                podcasts
+            });
+        } catch (err) {
+            console.error('Error retrieving podcasts:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+    }
+
 };
 
 module.exports = PodcastController;

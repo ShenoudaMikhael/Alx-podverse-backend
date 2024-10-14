@@ -10,5 +10,6 @@ podcastRouter.get('/followingPodcast', AuthController.authMiddleWare, PodcastCon
 podcastRouter.put('/:id', AuthController.authMiddleWare, uploadPodcast.single('file'), PodcastController.updatePodcast);
 podcastRouter.delete('/:id', AuthController.authMiddleWare, PodcastController.deletePodcast);
 podcastRouter.post('/:uuid', AuthController.authMiddleWare, PodcastController.getPodcast);
+podcastRouter.get('/podcasts', PodcastController.getAllPodcasts);
 
 module.exports = podcastRouter;
