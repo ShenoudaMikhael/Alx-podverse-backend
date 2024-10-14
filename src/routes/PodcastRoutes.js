@@ -8,6 +8,7 @@ podcastRouter.post('/create',AuthController.authMiddleWare, uploadPodcast.single
 podcastRouter.get('/userPodcast', AuthController.authMiddleWare, PodcastController.getUserPodcasts);
 podcastRouter.get('/followingPodcast', AuthController.authMiddleWare, PodcastController.getFollowingPodcasts);
 podcastRouter.put('/:id', AuthController.authMiddleWare, uploadPodcast.single('file'), PodcastController.updatePodcast);
+podcastRouter.delete('/:id', AuthController.authMiddleWare, PodcastController.deletePodcast);
 podcastRouter.post('/:uuid', AuthController.authMiddleWare, PodcastController.getPodcast);
 
 module.exports = podcastRouter;

@@ -225,6 +225,43 @@ class PodcastController {
         }
     }
 
+    static async deletePodcast(req, res) {
+        try {
+            const podcastId = req.params.id;
+            const userId = req.user.id;
+    
+            const podcast = await Podcast.findOne({
+                where: { id: podcastId, user_id: userId } // Ensure the user owns the podcast
+            });
+    
+            if (!podcast) {
+                return res.status(404).json({ message: 'Podcast not found or unauthorized' });
+            }
+    
+            // If podcast has an associated image, delete it from the file system
+            if (podcast.podcastPic) {
+                const podcastPicPath = path.join(__dirname, '..', podcast.podcastPic);
+                try {
+                    if (fs.existsSync(podcastPicPath)) {
+                        fs.unlinkSync(podcastPicPath);
+                        console.log('Podcast photo deleted:', podcastPicPath);
+                    }
+                } catch (err) {
+                    console.error('Error deleting podcast photo:', err);
+                }
+            }
+    
+            await podcast.destroy();
+    
+            return res.status(200).json({
+                message: 'Podcast deleted successfully!'
+            });
+        } catch (err) {
+            console.error('Error deleting podcast:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+    }
+
 };
 
 module.exports = PodcastController;
