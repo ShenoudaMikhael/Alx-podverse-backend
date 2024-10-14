@@ -132,10 +132,21 @@ class UserController {
             const userId = req.user.id;
 
             const followers = await Follower.count({ where: { followed_creator_id: userId } });
+            const followersList = await Follower.findAll({ 
+                where: { followed_creator_id: userId },
+                include: [
+                    {
+                        model: User,
+                        as: 'follower',
+                        attributes: ['id', 'name', 'profilePic'],
+                    }
+                ]
+            });
 
             return res.status(200).json({
                 message: 'Followers retrieved successfully!',
-                count: followers
+                count: followers,
+                followersList
             });
         } catch (err) {
             console.error(err.message);
@@ -150,9 +161,21 @@ class UserController {
  
             const following = await Follower.count({ where: { follower_id: userId } });
 
+            const followingList = await Follower.findAll({ 
+                where: { follower_id: userId },
+                include: [
+                    {
+                        model: User,
+                        as: 'follower',
+                        attributes: ['id', 'name', 'profilePic'],
+                    }
+                ]
+            });
+
             return res.status(200).json({
                 message: 'Following list retrieved successfully!',
-                count: following
+                count: following,
+                followingList
             });
         } catch (err) {
             console.error(err.message);

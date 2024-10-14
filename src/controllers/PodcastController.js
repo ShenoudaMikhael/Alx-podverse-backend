@@ -3,8 +3,10 @@ const User = dbClient.models.users;
 const Category = dbClient.models.categories;
 const Podcast = dbClient.models.podcasts;
 const Follower = dbClient.models.followers;
-const multer = require('multer');
-const upload = multer({ dest: 'uploads2/' });
+const uploadPodcast = require('../utils/uploadPodcast');
+const fs = require('fs');
+const path = require('path');
+
 
 class PodcastController {
     static async createPodcast(req, res) {
@@ -13,6 +15,26 @@ class PodcastController {
             // console.log("here",req.body.data);
             const { title, description, start_date, cat_id, is_live } = JSON.parse(req.body.data);
             const uploadedFile = req.body;
+
+            // Handle uploading podcast photo while creating
+            let podcastPhoto = null;
+            if (req.file) {
+                podcastPhoto = req.file.path; // Save the uploaded file path
+            }
+
+            // Handle podcastStartDate when podcast is live
+            let podcastStartDate = null;
+            if (is_live === true || is_live === "true" || is_live === 1) {
+                podcastStartDate = new Date();
+            } else {
+                if (!start_date) {
+                    return res.status(400).json({
+                        message: 'Start date is required for non-live podcasts',
+                    });
+                }
+                podcastStartDate = new Date(start_date);
+            }
+
             // Check if category exists
             const category = await Category.findOne({ where: { id: cat_id } });
             if (!category) {
@@ -24,12 +46,29 @@ class PodcastController {
             const newPodcast = await Podcast.create({
                 title,
                 description,
-                start_date,
-                is_live: (is_live === true ? is_live : false),
+                start_date: podcastStartDate,
+                is_live: is_live === true || is_live === "true" || is_live === 1,
+                // it makes is_live false even if it's true (datatypes)!
+                // is_live: (is_live === true ? is_live : false),
+                podcastPic: podcastPhoto,
                 cat_id,
                 //user id from request
                 user_id: req.user.id,
             });
+
+            if (req.file) {
+                const oldPath = req.file.path;
+                const extension = path.extname(req.file.originalname);
+                const newFileName = `podcast_${newPodcast.id}${extension}`;
+                const newPath = path.join('uploads_podcast', newFileName);
+
+                // Rename the file on the filesystem
+                fs.renameSync(oldPath, newPath);
+
+                // Save the new file path in the database
+                podcastPhoto = newPath;
+                await newPodcast.update({ podcastPic: podcastPhoto });
+            }
 
             return res.status(201).json({
                 message: 'Podcast created successfully!',

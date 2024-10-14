@@ -30,6 +30,19 @@ class CategoryController {
             return res.status(500).json({ message: 'Server error' });
         }
     }
+
+    static async getCategory(req, res) {
+        try {
+            const categories = await Category.findAll({
+                attributes: ['id', 'name']
+            });
+        
+            res.json(categories);
+          } catch (error) {
+            console.error('Error fetching categories:', error);
+            res.status(500).json({ error: 'An error occurred while fetching categories' });
+          }
+    }
 }
 
 module.exports = CategoryController;
