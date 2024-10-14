@@ -183,6 +183,23 @@ class UserController {
         }
     }
 
+    static async followUser(req, res) {
+        try {
+            const followerId = req.user.id;
+            const followedCreatorId = req.params.id;
+    
+            // Add new follow relationship
+            const newFollow = await Follower.create({
+                follower_id: followerId,
+                followed_creator_id: followedCreatorId
+            });
+    
+            return res.status(201).json({ message: 'Followed successfully!', follow: newFollow });
+        } catch (err) {
+            console.error('Error following user:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+    }
 }
 
 module.exports = UserController;
