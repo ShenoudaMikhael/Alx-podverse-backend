@@ -1,7 +1,4 @@
-
 const Sequelize = require('sequelize');
-const { v4: uuidv4 } = require('uuid');
-
 module.exports = function (sequelize, DataTypes) {
   return sequelize.define('podcasts', {
     id: {
@@ -39,6 +36,10 @@ module.exports = function (sequelize, DataTypes) {
         key: 'id'
       }
     },
+    current_socket_id: {
+      type: DataTypes.STRING(50),
+      allowNull: true
+    },
     cat_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -58,8 +59,6 @@ module.exports = function (sequelize, DataTypes) {
     sequelize,
     tableName: 'podcasts',
     timestamps: true,
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt',
     indexes: [
       {
         name: "PRIMARY",
@@ -70,17 +69,17 @@ module.exports = function (sequelize, DataTypes) {
         ]
       },
       {
-        name: "creator_id",
-        using: "BTREE",
-        fields: [
-          { name: "user_id" },
-        ]
-      },
-      {
         name: "cat_id",
         using: "BTREE",
         fields: [
           { name: "cat_id" },
+        ]
+      },
+      {
+        name: "creator_id",
+        using: "BTREE",
+        fields: [
+          { name: "user_id" },
         ]
       },
     ]
