@@ -23,6 +23,7 @@ async function createServer() {
     app.use('/podcast',podcastRouter);
     app.use('/category',categoryRouter);
     app.use('/uploads', express.static('uploads'));
+    app.use('/uploads_podcast', express.static('uploads_podcast'));
     app.use('/auth',authRouter);
     app.use('/user',userRouter);
     app.get('/', (req, res) => {
