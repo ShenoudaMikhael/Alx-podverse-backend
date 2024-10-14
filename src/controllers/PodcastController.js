@@ -14,7 +14,6 @@ class PodcastController {
         try {
             // console.log("here",req.body.data);
             const { title, description, start_date, cat_id, is_live } = JSON.parse(req.body.data);
-            const uploadedFile = req.body;
 
             // Handle uploading podcast photo while creating
             let podcastPhoto = null;
@@ -88,16 +87,47 @@ class PodcastController {
             if (!podcast) {
                 return res.status(404).json({ msg: 'Podcast not found' });
             }
-
-            const { title, description, start_date, is_live, cat_id, socket_current_id } = req.body;
-
             const fieldsToUpdate = {};
-            if (title) fieldsToUpdate.title = title;
-            if (description) fieldsToUpdate.description = description;
-            if (start_date) fieldsToUpdate.start_date = start_date;
-            if (is_live) fieldsToUpdate.is_live = is_live;
-            if (cat_id) fieldsToUpdate.cat_id = cat_id;
-            if (socket_current_id) fieldsToUpdate.socket_current_id = socket_current_id;
+            if (req.body.data) {
+                const { title, description, start_date, is_live, cat_id, socket_current_id } = JSON.parse(req.body.data);
+
+                if (title) fieldsToUpdate.title = title;
+                if (description) fieldsToUpdate.description = description;
+                if (start_date) fieldsToUpdate.start_date = start_date;
+                if (is_live) fieldsToUpdate.is_live = is_live;
+                if (cat_id) fieldsToUpdate.cat_id = cat_id;
+                if (socket_current_id) fieldsToUpdate.current_socket_id = socket_current_id;
+            }
+
+            let podcastPhoto = null;
+            if (req.file) {
+                const oldPath = req.file.path;
+                const extension = path.extname(req.file.originalname);
+                const newFileName = `podcast_${podcastId}${extension}`;
+                const newPath = path.join('uploads_podcast', newFileName);
+            
+                try {
+                    // Rename the file on the filesystem
+                    fs.renameSync(oldPath, newPath);
+                    console.log('File renamed successfully to:', newPath);
+            
+                    // Save the new file path in the fields to update
+                    podcastPhoto = newPath;
+                    fieldsToUpdate.podcastPic = podcastPhoto;
+            
+                    // Optionally, delete the old podcast photo only if it's different from the new one
+                    if (podcast.podcastPic && podcast.podcastPic !== newPath) {
+                        try {
+                            fs.unlinkSync(podcast.podcastPic);
+                            console.log('Old podcast photo deleted:', podcast.podcastPic);
+                        } catch (err) {
+                            console.error('Error deleting old podcast photo:', err);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error renaming file:', err);
+                }
+            }
 
             if (Object.keys(fieldsToUpdate).length === 0) {
                 return res.status(400).json({ msg: 'No fields to update' });
