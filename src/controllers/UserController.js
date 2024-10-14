@@ -200,6 +200,25 @@ class UserController {
             return res.status(500).json({ message: 'Server error' });
         }
     }
+
+    static async unfollowUser(req, res) {
+        try {
+            const followerId = req.user.id;
+            const followedCreatorId = req.params.id;
+    
+            const existingFollow = await Follower.findOne({
+                where: { follower_id: followerId, followed_creator_id: followedCreatorId }
+            });
+    
+            // Delete the follow relationship
+            await existingFollow.destroy();
+    
+            return res.status(200).json({ message: 'Unfollowed successfully!' });
+        } catch (err) {
+            console.error('Error unfollowing user:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+    }
 }
 
 module.exports = UserController;
