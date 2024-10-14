@@ -32,7 +32,7 @@ class AuthController {
             jwt.sign(
                 payload,
                 getenv('JWT'), // Store this secret safely
-                { expiresIn: '1h' },
+                { expiresIn: '24h' },
                 (err, token) => {
                     if (err) throw err;
                     res.json({ token });
