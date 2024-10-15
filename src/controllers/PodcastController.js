@@ -276,6 +276,24 @@ class PodcastController {
         }
     }
 
+    static async getLivePodcasts(req, res) {
+        try {
+            const podcasts = await Podcast.findAll({
+                where: {is_live: true},
+                limit: 20,
+                order: [['start_date', 'DESC']]
+            });
+    
+            return res.status(200).json({
+                message: 'The 20 most recent live podcasts retrieved successfully!',
+                podcasts
+            });
+        } catch (err) {
+            console.error('Error retrieving podcasts:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+    }
+
 };
 
 module.exports = PodcastController;
