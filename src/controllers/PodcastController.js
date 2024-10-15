@@ -265,10 +265,27 @@ class PodcastController {
     static async getAllPodcasts(req, res) {
         try {
             const podcasts = await Podcast.findAll();
+            const userId = podcasts.map(f => f.user_id);
+
+            const userData = await Podcast.findAll({
+                where: {user_id: userId},
+                include: [
+                    {
+                        model: User,
+                        as: 'user',
+                        attributes: ['id', 'name', 'profilePic'],
+                    }
+                ]
+            });
+
+            
+            // const userData = await User.findAll({
+            //     where: { id: userId }, attributes: ['id', 'name', 'profilePic']
+            // });
     
             return res.status(200).json({
                 message: 'Podcasts retrieved successfully!',
-                podcasts
+                userData
             });
         } catch (err) {
             console.error('Error retrieving podcasts:', err);
