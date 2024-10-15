@@ -66,6 +66,7 @@ class UserController {
     static async updateProfilePicture(req, res) {
         try {
             const userId = req.user.id;
+            const user = await User.findOne({ where: { id: userId } });
 
             // Ensure a file was uploaded
             if (!req.file) {
@@ -73,9 +74,10 @@ class UserController {
             }
 
             // Check if the user already has a profile picture and delete the old file
-            if (req.user.profilePicture) {
-                const oldFilePath = path.join(__dirname, '../','../',req.user.profilePicture);
-                if (fs.existsSync(oldFilePath)) {
+            if (user.profilePic) {
+                const oldFilePath = path.join(__dirname, '../','../',user.profilePic);
+                const newPath = path.join('uploads', req.file.filename);
+                if (user.profilePic && user.profilePic !== newPath) {
                     fs.unlinkSync(oldFilePath);  // Delete the old profile picture
                 }
             }

@@ -25,7 +25,6 @@ class AuthController {
             const payload = {
                 user: {
                     id: user.id,
-                    profilePicture: user.profilePic
                 }
             };
 
