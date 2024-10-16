@@ -90,6 +90,7 @@ function createChatServer(app) {
 
             }
             io.to(podcast).emit('activeUsers', activeUsers[podcast]);
+            io.emit('activeListeners', activeUsers);
             console.log(`User ${socket.id} joined podcast: ${podcast}`, socket.data.user.id);
         });
 
