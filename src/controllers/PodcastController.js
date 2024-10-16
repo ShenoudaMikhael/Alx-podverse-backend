@@ -105,16 +105,16 @@ class PodcastController {
                 const extension = path.extname(req.file.originalname);
                 const newFileName = `podcast_${podcastId}${extension}`;
                 const newPath = path.join('uploads_podcast', newFileName);
-            
+
                 try {
                     // Rename the file on the filesystem
                     fs.renameSync(oldPath, newPath);
                     console.log('File renamed successfully to:', newPath);
-            
+
                     // Save the new file path in the fields to update
                     podcastPhoto = newPath;
                     fieldsToUpdate.podcastPic = podcastPhoto;
-            
+
                     // Optionally, delete the old podcast photo only if it's different from the new one
                     if (podcast.podcastPic && podcast.podcastPic !== newPath) {
                         try {
@@ -174,7 +174,14 @@ class PodcastController {
 
         // 2. Fetch podcasts where the creator (user_id) is in the list of followed creators
         const followingPodcasts = await Podcast.findAll({
-            where: { user_id: followedCreatorIds } // user_id here refers to the podcast creator
+            where: { user_id: followedCreatorIds }, // user_id here refers to the podcast creator
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'name', 'profilePic'],
+                }
+            ]
         });
 
         // 3. Respond with the list of podcasts
@@ -229,15 +236,15 @@ class PodcastController {
         try {
             const podcastId = req.params.id;
             const userId = req.user.id;
-    
+
             const podcast = await Podcast.findOne({
                 where: { id: podcastId, user_id: userId } // Ensure the user owns the podcast
             });
-    
+
             if (!podcast) {
                 return res.status(404).json({ message: 'Podcast not found or unauthorized' });
             }
-    
+
             // If podcast has an associated image, delete it from the file system
             if (podcast.podcastPic) {
                 const podcastPicPath = path.join(__dirname, '..', podcast.podcastPic);
@@ -250,14 +257,70 @@ class PodcastController {
                     console.error('Error deleting podcast photo:', err);
                 }
             }
-    
+
             await podcast.destroy();
-    
+
             return res.status(200).json({
                 message: 'Podcast deleted successfully!'
             });
         } catch (err) {
             console.error('Error deleting podcast:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+    }
+
+    static async getAllPodcasts(req, res) {
+        try {
+            const allPodcasts = await Podcast.findAll();
+            const userId = allPodcasts.map(f => f.user_id);
+
+            const podcasts = await Podcast.findAll({
+                where: { user_id: userId },
+                include: [
+                    {
+                        model: User,
+                        as: 'user',
+                        attributes: ['id', 'name', 'profilePic'],
+                    }
+                ]
+            });
+
+
+            // const userData = await User.findAll({
+            //     where: { id: userId }, attributes: ['id', 'name', 'profilePic']
+            // });
+
+            return res.status(200).json({
+                message: 'Podcasts retrieved successfully!',
+                podcasts
+            });
+        } catch (err) {
+            console.error('Error retrieving podcasts:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+    }
+
+    static async getLivePodcasts(req, res) {
+        try {
+            const podcasts = await Podcast.findAll({
+                where: { is_live: true },
+                limit: 20,
+                order: [['start_date', 'DESC']],
+                include: [
+                    {
+                        model: User,
+                        as: 'user',
+                        attributes: ['id', 'name', 'profilePic'],
+                    }
+                ]
+            });
+
+            return res.status(200).json({
+                message: 'The 20 most recent live podcasts retrieved successfully!',
+                podcasts
+            });
+        } catch (err) {
+            console.error('Error retrieving podcasts:', err);
             return res.status(500).json({ message: 'Server error' });
         }
     }

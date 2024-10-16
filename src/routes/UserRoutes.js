@@ -14,4 +14,7 @@ userRouter.put('/updatePassword', AuthController.authMiddleWare, UserController.
 userRouter.get('/followers', AuthController.authMiddleWare, UserController.getFollowers);
 userRouter.get('/following', AuthController.authMiddleWare, UserController.getFollowingList);
 
+userRouter.post('/:id', AuthController.authMiddleWare, UserController.followUser);
+userRouter.delete('/:id', AuthController.authMiddleWare, UserController.unfollowUser);
+
 module.exports = userRouter;

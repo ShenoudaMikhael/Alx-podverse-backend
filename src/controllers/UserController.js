@@ -66,6 +66,7 @@ class UserController {
     static async updateProfilePicture(req, res) {
         try {
             const userId = req.user.id;
+            const user = await User.findOne({ where: { id: userId } });
 
             // Ensure a file was uploaded
             if (!req.file) {
@@ -73,9 +74,10 @@ class UserController {
             }
 
             // Check if the user already has a profile picture and delete the old file
-            if (req.user.profilePicture) {
-                const oldFilePath = path.join(__dirname, '../','../',req.user.profilePicture);
-                if (fs.existsSync(oldFilePath)) {
+            if (user.profilePic) {
+                const oldFilePath = path.join(__dirname, '../','../',user.profilePic);
+                const newPath = path.join('uploads', req.file.filename);
+                if (user.profilePic && user.profilePic !== newPath) {
                     fs.unlinkSync(oldFilePath);  // Delete the old profile picture
                 }
             }
@@ -183,6 +185,42 @@ class UserController {
         }
     }
 
+    static async followUser(req, res) {
+        try {
+            const followerId = req.user.id;
+            const followedCreatorId = req.params.id;
+    
+            // Add new follow relationship
+            const newFollow = await Follower.create({
+                follower_id: followerId,
+                followed_creator_id: followedCreatorId
+            });
+    
+            return res.status(201).json({ message: 'Followed successfully!', follow: newFollow });
+        } catch (err) {
+            console.error('Error following user:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+    }
+
+    static async unfollowUser(req, res) {
+        try {
+            const followerId = req.user.id;
+            const followedCreatorId = req.params.id;
+    
+            const existingFollow = await Follower.findOne({
+                where: { follower_id: followerId, followed_creator_id: followedCreatorId }
+            });
+    
+            // Delete the follow relationship
+            await existingFollow.destroy();
+    
+            return res.status(200).json({ message: 'Unfollowed successfully!' });
+        } catch (err) {
+            console.error('Error unfollowing user:', err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+    }
 }
 
 module.exports = UserController;
