@@ -4,8 +4,11 @@ const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const dbClient = require('./db')
 const User = dbClient.models.users;
+const Podcast = dbClient.models.podcasts;
 
 let activeUsers = {};  // Store active users by room
+let podcast_broadcasters = {};
+let podcast_listeners = {} // Store active users by room
 function createChatServer(app) {
     console.log('createChatServer');
     const server = http.createServer(app);
@@ -26,19 +29,18 @@ function createChatServer(app) {
         });
     });
     io.on('connection', (socket) => {
-        // const ids = [];
+
         console.log('A user connected', socket.id);
-        socket.emit("me", socket.id);
-        // Listen for chat messages
+
         socket.on('chat message', ({ message, room }) => {
             console.log(message, room);
             io.to(room).emit('chat message', message); // Broadcast message to all clients
         });
 
-        socket.on('get-broadcast-id', ({ listenerId }) => {
-            console.log('fired:get-broadcast-id', listenerId);
+        socket.on('connect-to-me', ({ listenerId, broadcasterId }) => {
+            console.log('fired:connect-to-me', listenerId);
             //needs to be updated
-            socket.broadcast.emit('get-broadcast-id', { listenerId });
+            socket.to(listenerId).emit('connect-to-me', { broadcasterId });
         })
 
         socket.on('shake-listener', ({ listenerId, broadcaster }) => {
@@ -60,9 +62,16 @@ function createChatServer(app) {
         socket.on('join-podcast', async (podcast) => {
 
             socket.join(podcast);
-
             const user = await User.findByPk(socket.data.user.id);
-
+            const current_podcast = await Podcast.findOne({ where: { uuid: podcast } });
+            if (current_podcast.user_id == socket.data.user.id) {
+                podcast_broadcasters[podcast] = { user_id: socket.data.user.id, socketId: socket.id }
+                socket.to(podcast).except(socket.id).emit('broadcaster-connected', socket.id);
+            } else {
+                if (!podcast_listeners[podcast]) podcast_listeners[podcast] = [];
+                podcast_listeners[podcast].push[{ user_id: socket.data.user.id, socketId: socket.id }]
+                socket.to(podcast).except(socket.id).emit('listener-connected', socket.id);
+            }
             if (user) {
                 // Add user to the activeUsers list
                 if (!activeUsers[podcast]) {
@@ -84,7 +93,26 @@ function createChatServer(app) {
 
 
         socket.on('disconnect', () => {
+
+            for (const room in podcast_broadcasters) {
+                if (podcast_broadcasters[room].socketId == socket.id) {
+                    io.to(room).emit('broadcaster-left', socket.id);
+                }
+            }
+
+
+
+            for (const room in podcast_listeners) {
+                for (const listener in podcast_listeners[room]) {
+                    if (listener.socketId == socket.id) {
+                        io.to(room).emit('listener-left', socket.id);
+                        podcast_listeners[room].remove(listener);
+                    }
+                }
+            }
+
             for (const podcastId in activeUsers) {
+
                 const userIndex = activeUsers[podcastId].findIndex(user => user.socketId === socket.id);
                 if (userIndex !== -1) {
                     activeUsers[podcastId].splice(userIndex, 1);  // Remove user from the list
