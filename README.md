@@ -1,4 +1,8 @@
-# Podverse
+<div align="center">
+    <a>
+        <img src="readme_images/podverse.jpg">
+    </a>
+</div>
 
 **Podverse** is a live podcast streaming platform where creators can broadcast their podcasts in real-time to an engaged audience. Listeners can tune in, chat with the hosts, and participate in live discussions, all within a seamless and user-friendly interface. With Podverse, users can discover new podcasts through live streams.
 
