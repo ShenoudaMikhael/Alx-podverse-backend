@@ -57,6 +57,10 @@ function createChatServer(app) {
         });
 
 
+        socket.on('podcast-ended', (uuid) => {
+            socket.to(uuid).emit('podcast-ended');
+        });
+
 
         //chat   
         socket.on('join-podcast', async (podcast) => {
