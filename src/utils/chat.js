@@ -77,6 +77,7 @@ function createChatServer(app) {
                 socket.to(podcast).except(socket.id).emit('listener-connected', socket.id);
             }
             if (user) {
+                console.log(user.dataValues);
                 // Add user to the activeUsers list
                 if (!activeUsers[podcast]) {
                     activeUsers[podcast] = [];
@@ -84,7 +85,8 @@ function createChatServer(app) {
                 activeUsers[podcast].push({
                     id: user.id,
                     name: user.name,
-                    image: user.image,
+                    username: user.username,
+                    image: user.profilePic,
                     socketId: socket.id,  // Track socket ID for disconnection later
                 });
 

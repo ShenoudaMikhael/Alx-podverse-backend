@@ -199,7 +199,7 @@ class PodcastController {
 
             const podcast = await Podcast.findOne({
                 where: { uuid }, include: [
-                    { model: User, as: 'user', attributes: ['username', 'name'] },
+                    { model: User, as: 'user', attributes: ['id', 'username', 'name', 'profilePic'] },
                     { model: Category, as: 'cat' },
                 ]
             });
@@ -211,7 +211,7 @@ class PodcastController {
             console.log("here")
 
             const me = await User.findOne({
-                where: { id: req.user.id }, attributes: ['name', 'username'],
+                where: { id: req.user.id }, attributes: ['id', 'name', 'username', 'profilePic'],
             });
 
             if (!podcast) {
